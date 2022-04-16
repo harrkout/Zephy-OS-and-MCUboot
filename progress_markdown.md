@@ -54,7 +54,7 @@
 
 		cd ~/Workspace
 		
-		#Enable Initialuzation 
+		#Enable Initialization 
 		echo "source \${HOME}/Workspace/zephyr/zephyr-env.sh" > env.sh
 		
 		#Using te ARM GCC Compiler
@@ -94,7 +94,7 @@
 
 		west flash
 		
-#####taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
+######taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
 
 #MCUboot
 ***
