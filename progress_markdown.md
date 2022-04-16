@@ -94,7 +94,7 @@
 
 		west flash
 		
-######taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
+###### taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
 
 #MCUboot
 ***
