@@ -96,7 +96,7 @@
 		
 ###### taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
 
-#MCUboot
+# MCUboot
 ***
 ##### MCUboot is a secure bootloader for 32-bits microcontrollers. It defines a common infrastructure for the bootloader and the system flash layout on microcontroller systems, and provides a secure bootloader that enables easy software upgrade.
 
