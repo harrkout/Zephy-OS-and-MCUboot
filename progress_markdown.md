@@ -4,6 +4,7 @@
 
 -  **Required Dependencies**
 
+
 		sudo pacman -Syyu git python-pip python-setup-tools python-wheel python-pyserial gperf git wget curl xz ninja file \
 			cmake bison make flex gcc drc openocd arm-none-eabi-gcc \
 			arm-none-eabi-bitutils arm-none-eabi-gdb \
@@ -18,9 +19,9 @@
 	
 	West is developed in its own repository.
 	
+  
 		cd /tmp
 		git clone https://aur.archlinux.org/python-west.git
-		
 		
 		#Create the Installation package
 		cd python-west
@@ -36,9 +37,11 @@
 		
 - **Creating the directory**
 
+
 		mkdir ~/Workspace
 
 - **Downloading all Zephyr packages** (Caution -> ~2.6GByte)
+
 
 		cd ~/Workspace
 		
@@ -46,15 +49,19 @@
 		
 - **Additional Python dependencies after**
 
+
 		cd ~/Workspace
 		
 		sudo pip instal -r zephyr/scripts/requirements.txt
 		
+		
+
 - **Creating the Environment setup file**
+
 
 		cd ~/Workspace
 		
-		#Enable Initialization 
+		#Enable Initialuzation 
 		echo "source \${HOME}/Workspace/zephyr/zephyr-env.sh" > env.sh
 		
 		#Using te ARM GCC Compiler
@@ -67,6 +74,7 @@
 Σάββατο, 16. Απριλίου 2022 06:28πμ 
 
 - **Setting up openocd (Open On-Chip Debugger)**
+
 
 		#creating temp location
 		cd /temp
@@ -88,13 +96,16 @@
 
 - **To build use**
 
+
 		west build -p auto -b <your-board-name> samples/basic/blinky
 		
 - **To flash use**
 
+
 		west flash
 		
-###### taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
+##### taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
+
 
 # MCUboot
 ***
@@ -109,6 +120,7 @@
 
 - **Next, we need to manually set the partitions needed for the bootloader.**
 
+
 		- boot_partition    # : for MCUboot itself
 		- image_0_primary_partition #: the primary slot of Image 0
 		- image_0_secondary_partition #: the secondary slot of Image 0
@@ -116,9 +128,11 @@
 
 - **Then we need to find the device tree of the board we want to load the bootloader into. The device tree can be found on the zephyr directory**
 
+
 		 ~/Workspace/zephyr/boards/*/*/*.dts
 		 
 - **Now we need to manually set the following partitions**
+
 
 		&flash0 {
 
@@ -162,6 +176,7 @@
 
  - **On the file ~/Workspace/mcuboot/boot/zephyr/dts.overlay change to slot0_partition (from oroginal boot_partition I think?)**
  
+ 
  		/ {
 		chosen {
 			zephyr,code-partition = &slot0_partition;
@@ -172,6 +187,7 @@
 		
 - Side-note testing: 
 		
+    
        When tested on a board with limited SRAM, an overflow error was occured.
        
        The error was resolved by reducing the parameter shown bellow by 50% (need to be examined)
@@ -197,10 +213,12 @@
 - **Next, we need to enable the bootloader on the project config file.**
 - **The configurations of a project can be found on the project/prj.conf file  (example: zephyr/samples/basic/blinky/prj.conf)**
 
+
 		#added parameter
 		CONFIG_BOOTLOADER_MCUBOOT=y  
 	
 - **Now we are ready to build the bootloader on out board**
+
 
 		cd ~/Workspace/mcuboot
 		
@@ -209,6 +227,7 @@
 		west flash
 		
 - **The output was:**
+
 
 		*** Booting Zephyr OS build zephyr-v3.0.0-2633-ga6f71586170f  ***
 		I: Starting bootloader
@@ -222,6 +241,7 @@
 
 - **Now to build the project from zephyr**
 
+
 		cd ~/Workspace/zephyr
 		
 		#or cd $ZEPHYR_BASE
@@ -234,9 +254,10 @@
 		
 - **Now we need to generate the signed images from the bootloader**
 
+
 		cd ~/Workspace/mcuboot/boot/zephyr
 		mkdir build && cd build
-		cmake -Gninja -DBOARD=stm32f469i_disco ..
+		cmake -GNinja -DBOARD=stm32f469i_disco ..
 		ninja
 		
 		make BOARD=stm32f469i_disco all
@@ -256,10 +277,12 @@
 
 - **Flash the generated bin files**
 
+
 		make flash_full 
 		pyocd flash -e chip -a 0 full.bin
 		
 - **Now, the following error occured:**
+
 
 		0000520 C Target type stm32f469nihx not recognized. Use 'pyocd list --targets' to see currently available target types. See <https://github.com/pyocd/pyOCD/blob/master/docs/target_support.md> for how to install additional target support. [__main__]
 		Traceback (most recent call last):
@@ -291,6 +314,7 @@
 
 - **Solution was to manually detect it and download the missing packages**
 
+
 		#detects device
 		pyocd list  
 
@@ -300,11 +324,13 @@
 		
 - **Repeat**
 
+
 		make flash_boot
 		
 		pyocd flash -e chip -a 0 mcuboot.bin
 		
 - **Upon following error I found that I needed to flash the full.bin binary**
+
 
 		0001028 I Loading /home/harrkout/Workspace/mcuboot/samples/zephyr/mcuboot.bin at 0x00000000 [load_cmd]
 		0006036 C no memory region defined for address 0x00000000 [__main__]
@@ -325,9 +351,11 @@
 		
 - **Solution**
 
+
 		pyocd flash full.bin
 		
 - **Serial Output**
+
 
 		*** Booting Zephyr OS build zephyr-v3.0.0-2633-ga6f71586170f  ***
 		I: Starting bootloader
@@ -339,4 +367,140 @@
 		I: Jumping to the first image slot              
 		
 
-1. Next, custom key generation.
+# Image Signing with custom key
+
+- **Generate a key using openssl command : (on dir /mcuboot)**
+
+    
+    openssl genrsa -out my_key.pem 2048
+    
+		
+**This command will create a file named my_key.pem which contains both private and public key.**
+
+- **Modify the prj.conf file to include the generated key**
+
+
+		#boot/zephyr/prj.conf
+		Modify the prj.conf file to include the generated key
+
+- **Rebuild and flash the MCUboot bootloader**
+
+
+		west build -s boot/zephyr -b stm32f469i_disco
+		
+		west flash
+		
+- **Serial output**
+
+
+		I: Starting bootloader
+		I: Primary image: magic=good, swap_type=0x2, copy_done=0x1, im3
+		I: Scratch: magic=unset, swap_type=0x1, copy_done=0x3, image_o3
+		I: Boot source: none
+		I: Swap type: revert
+		E: Image in the secondary slot is not valid!    
+		E: Image in the primary slot is not valid!      	
+		E: Unable to find bootable image
+		
+- **To sign via west instead of imgtool.py**
+
+
+		pip3 install --user imgtool
+		
+		#sign the image
+		
+		west sign -t imgtool -- --key ../mcuboot/my_key.pem
+		
+------
+# Errors occured
+---------
+- **Changed made according to errors on ROM address**
+
+
+		#on /Workspace/mcuboot/build/zephyr/.config
+		#change line 
+		CONFIG_ROM_START_OFFSET=0
+		#to
+		CONFIG_ROM_START_OFFSET=0x200
+	
+
+- **Next error:**
+
+WARNING: CONFIG_BOOTLOADER_MCUBOOT is not set to y in /home/harrkout/Workspace/mcuboot/build/zephyr/.config; this probably won't
+
+**every time the bootloader reflashes it gets deleted???**
+
+-----
+
+- **Output after sign**
+
+
+		=== image configuration:
+		partition offset: 131072 (0x20000)
+		partition size: 393216 (0x60000)
+		rom start offset: 512 (0x200)
+		=== signing binaries
+		unsigned bin: /home/harrkout/Workspace/mcuboot/build/zephyr/zephyr.bin
+		signed bin:   /home/harrkout/Workspace/mcuboot/build/zephyr/zephyr.signed.bin
+		unsigned hex: /home/harrkout/Workspace/mcuboot/build/zephyr/zephyr.hex
+		signed hex:   /home/harrkout/Workspace/mcuboot/build/zephyr/zephyr.signed.hex
+
+- **Rebuild mcu and reflash**
+
+**This will generate the signed bin and hex in the build directory.**
+
+		build/zephyr/zephyr.signed.bin
+		build/zephyr/zephyr.signed.hex
+
+- **after a while though this happens**
+
+
+	    *** Booting Zephyr OS build zephyr-v3.0.0-2633-ga6f71586170f  *
+			I: Starting bootloader                                         
+			I: Primary image: magic=unset, swap_type=0x1, copy_done=0x3, i3
+			I: Scratch: magic=unset, swap_type=0x1, copy_done=0x3, image_o3
+			I: Boot source: primary slot                                   
+			I: Swap type: test                                             
+			I: Starting swap using scratch algorithm.                      
+			I: Bootloader chainload address offset: 0x20000                
+			I: Jumping to the first image slot                             
+			E: ***** BUS FAULT *****                                       
+			E:   Precise data bus error                                    
+			E:   BFAR Address: 0xfffffffc                                  
+			E: r0/a1:  0x00000030  r1/a2:  0x00000000  r2/a3:  0x00000000  
+			E: r3/a4:  0xfffffff8 r12/ip:  0xffffffff r14/lr:  0x08004d2f  
+			E:  xpsr:  0x01000000                                          
+			E: Faulting instruction address (r15/pc): 0x08000daa           
+			E: >>> ZEPHYR FATAL ERROR 0: CPU exception on CPU 0            
+			E: Current thread: 0x20000128 (unknown)                        
+			E: Halting system
+
+- **When signed image is invalid**
+
+
+		*** Booting Zephyr OS build zephyr-v3.0.0-2633-ga6f71586170f  *
+		I: Starting bootloader
+		I: Primary image: magic=good, swap_type=0x2, copy_done=0x1, im3
+		I: Scratch: magic=unset, swap_type=0x1, copy_done=0x3, image_o3
+		I: Boot source: none
+		I: Swap type: revert
+		E: Image in the primary slot is not valid!
+		E: Unable to find bootable image
+		
+---
+# How image signing works.
+
+**This signs the image by computing hash over the image, and then signing that hash. Signature is computed by newt tool when it’s creating the image. This signature is placed in the image trailer.**
+
+**The public key of this keypair must be included in the bootloader, as it verifies it before allowing the image to run.**
+
+-----
+
+# Conclusion
+
+### MCUboot uses Asymmetric encryption for secure booting. Here, Bootloader uses public key and application image uses private key for signing the image.
+---
+
+
+# todo: openhub vs golioth???
+
