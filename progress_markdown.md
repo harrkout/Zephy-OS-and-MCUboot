@@ -1,11 +1,13 @@
 # Zephyr OS for Arch-based distributions and MCUboot
 
-
+<br/>
+<br/>
 
 -  **Required Dependencies**
 
 
-		sudo pacman -Syyu git python-pip python-setup-tools python-wheel python-pyserial gperf git wget curl xz ninja file \
+		sudo pacman -Syyu git python-pip python-setup-tools python-wheel \
+			python-pyserial gperf git wget curl xz ninja file \
 			cmake bison make flex gcc drc openocd arm-none-eabi-gcc \
 			arm-none-eabi-bitutils arm-none-eabi-gdb \
 			patchet dfu-util gcovr dtc\
@@ -13,7 +15,7 @@
 			python-breathe python-intelhex \ 
 			python-packagin python-ply python-pyaml \
 			python-pyelftools python-pywalify \
-			oython-tabulate ccache doxygen
+			python-tabulate ccache doxygen
 		
 - **Setting up west**
 	
@@ -34,7 +36,9 @@
 		cd ..
 		
 		rm-rf python-west
-		
+
+<br/>
+
 - **Creating the directory**
 
 
@@ -46,7 +50,10 @@
 		cd ~/Workspace
 		
 		west update
-		
+
+<br/>
+<br/>	
+
 - **Additional Python dependencies after**
 
 
@@ -71,7 +78,6 @@
 		echo "export CROSS_COMPILE='which arm-none-eabi-gcc | sed 's/gcc/g'`" >> env.sh
 		
 		
-Σάββατο, 16. Απριλίου 2022 06:28πμ 
 
 - **Setting up openocd (Open On-Chip Debugger)**
 
@@ -104,9 +110,13 @@
 
 		west flash
 		
+<br/>
+<br/>
 ##### taken from https://www.zephyrproject.org/zephyr-os-getting-started-on-manjaro-arch-linux/
 
 
+<br/>
+<br/>
 # MCUboot
 ***
 ##### MCUboot is a secure bootloader for 32-bits microcontrollers. It defines a common infrastructure for the bootloader and the system flash layout on microcontroller systems, and provides a secure bootloader that enables easy software upgrade.
@@ -169,7 +179,9 @@
 				};
 			};
 		};
-		
+	
+	
+<br/>
 - **As far as I know the addresses stated above are universal and not board-pecific**
 
 - **Then we need to set the partition from which the MCU bootloader will be booted from when flashed**
@@ -216,7 +228,12 @@
 
 		#added parameter
 		CONFIG_BOOTLOADER_MCUBOOT=y  
-	
+
+<br/>
+<br/>
+<br/>
+<br/>
+
 - **Now we are ready to build the bootloader on out board**
 
 
@@ -274,7 +291,8 @@
 		cd ../
 		
 		west flash --hex-file scripts/signed-zephyr.hex
-
+<br/>
+<br/>
 - **Flash the generated bin files**
 
 
@@ -366,8 +384,28 @@
 		I: Bootloader chainload address offset: 0x20000                            
 		I: Jumping to the first image slot              
 		
-
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 # Image Signing with custom key
+<br/>
 
 - **Generate a key using openssl command : (on dir /mcuboot)**
 
@@ -410,10 +448,12 @@
 		#sign the image
 		
 		west sign -t imgtool -- --key ../mcuboot/my_key.pem
-		
+		<br/>
+<br/>
 ------
 # Errors occured
----------
+
+
 - **Changed made according to errors on ROM address**
 
 
@@ -423,7 +463,8 @@
 		#to
 		CONFIG_ROM_START_OFFSET=0x200
 	
-
+<br/>
+<br/>
 - **Next error:**
 
 WARNING: CONFIG_BOOTLOADER_MCUBOOT is not set to y in /home/harrkout/Workspace/mcuboot/build/zephyr/.config; this probably won't
@@ -474,6 +515,11 @@ WARNING: CONFIG_BOOTLOADER_MCUBOOT is not set to y in /home/harrkout/Workspace/m
 			E: >>> ZEPHYR FATAL ERROR 0: CPU exception on CPU 0            
 			E: Current thread: 0x20000128 (unknown)                        
 			E: Halting system
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 - **When signed image is invalid**
 
@@ -487,20 +533,25 @@ WARNING: CONFIG_BOOTLOADER_MCUBOOT is not set to y in /home/harrkout/Workspace/m
 		E: Image in the primary slot is not valid!
 		E: Unable to find bootable image
 		
----
-# How image signing works.
+<br/>
+<br/>
+
+## How image signing works
 
 **This signs the image by computing hash over the image, and then signing that hash. Signature is computed by newt tool when it’s creating the image. This signature is placed in the image trailer.**
 
 **The public key of this keypair must be included in the bootloader, as it verifies it before allowing the image to run.**
 
 -----
+<br/>
 
-# Conclusion
+## Conclusion
 
-### MCUboot uses Asymmetric encryption for secure booting. Here, Bootloader uses public key and application image uses private key for signing the image.
----
+**MCUboot uses Asymmetric encryption for secure booting. Here, Bootloader uses public key and application image uses private key for signing the image.**
 
+-----
 
-# todo: openhub vs golioth???
+<br/>
+<br/>
+**todo: openhub vs golioth??**
 
